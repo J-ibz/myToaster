@@ -1,0 +1,16 @@
+.toast-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 10px;
+}
+
+.toast {
+    width: 300px;
+    border: solid 1px black;
+    border-radius: 8px;
+    padding: 8px;
+}
