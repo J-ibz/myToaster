@@ -1,47 +1,105 @@
 class Toast {
-    constructor (data) {
-        this.container = data.container
-        this.value = data.value
-        this.element = null
-        this.timeoutId = null
-        this.CreateElement()
-    }
+	constructor(data) {
+		this.container = data.container;
+		this.text = data.text;
+		this.duration = data.duration || 3000;
+        this.validationRequired = false || data.validationRequired;
+        this.customsBtns = false || data.customsBtns;
+		this.element = null;
+		this.timeoutId = null;
+        this.cssToastClass = data.cssToastClass
+		this.CreateElement();
+	}
 
-    CreateElement () {
-        this.element = document.createElement('div')
-        this.element.classList.add('toast')
-        this.element.textContent = this.value
-        this.element.addEventListener('click', () => {
-            this.Destroy()
-        })
-    }
-
-    Show () {
-        this.container.append(this.element)
-        this.timeoutId = setTimeout(() => {
-            this.Destroy()
-        }, 2000);
-    }
-
-    ClearTimeOut () {
-        if (this.timeoutId) {
-            clearTimeout(this.timeoutId)
-            this.timeoutId = null
+	CreateElement () {
+		this.element = document.createElement('div');
+		this.element.classList.add(...this.cssToastClass.split(' '));
+		this.element.textContent = this.text;
+        if (!this.customsBtns) {
+            this.element.addEventListener('click', () => {
+            	this.Destroy();
+            });
         }
+        this.AddCustomBtns()
+	}
+
+    AddCustomBtns () {
+        if (!this.customsBtns) return
+        const btnsContainer = document.createElement('div')
+        btnsContainer.classList.add('btns-container')
+        this.customsBtns.forEach(el => {
+            const btnElement = document.createElement(el.type);
+            btnElement.classList.add(...el.class.split(' '));
+            btnElement.textContent = el.text;
+            btnElement.addEventListener('click', (e) => {
+                el.callback()
+                this.Destroy()
+            })
+            btnsContainer.append(btnElement);
+        })
+        this.element.append(btnsContainer);
     }
 
-    Destroy () {
-        this.element.remove()
-        this.ClearTimeOut()
-    }
+	Show () {
+		this.container.append(this.element);
+        if (!this.validationRequired) {
+            this.timeoutId = setTimeout(() => {
+                this.Destroy();
+            }, this.duration);
+        }
+	}
+
+	ClearTimeOut () {
+		if (this.timeoutId) {
+			clearTimeout(this.timeoutId);
+			this.timeoutId = null;
+		}
+	}
+
+	Destroy () {
+		this.element.remove();
+		this.ClearTimeOut();
+	}
 }
 
-const toastData = {
-    container : document.getElementById('toast-container'),
-    value : 'hello hello'
+function test () {
+    console.log('this is a test');
 }
+
+const toastOptions = {
+	container: document.getElementById('toast-container'),
+    cssToastClass : 'toast flex',
+	text: 'hello hello',
+    validationRequired : true,
+    customsBtns : [
+        {
+            type : 'div', 
+            class : 'btn valid',
+            text : 'Ok',
+            callback : () => {
+                console.log('hello');
+            } 
+        },
+        {
+            type : 'div',
+            class : 'btn cancel',
+            text : 'Cancel',
+            callback : test
+        }
+    ]
+};
+
+const options = {
+	container: document.getElementById('toast-container'),
+    cssToastClass : 'toast flex',
+	text: 'You have been notified',
+};
 
 document.querySelector('.test').addEventListener('click', e => {
-    e.preventDefault()
-    new Toast(toastData).Show()
-})
+	e.preventDefault();
+	new Toast(toastOptions).Show();
+});
+
+setInterval(() => {
+    new Toast(options).Show();
+}, 4000);

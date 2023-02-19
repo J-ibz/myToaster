@@ -14,3 +14,7 @@
     border-radius: 8px;
     padding: 8px;
 }
+
+.toast .btns-container{
+    display: flex;
+}
